@@ -1,0 +1,16 @@
+{
+  "name": "order-up-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:admin": "cd admin && npm run dev",
+    "dev:app": "cd order-up && npm run start",
+    "build:admin": "cd admin && npm run build",
+    "build:app": "cd order-up && npx expo export",
+    "install:admin": "cd admin && npm install",
+    "install:app": "cd order-up && npm install",
+    "install:all": "npm run install:admin && npm run install:app",
+    "lint:admin": "cd admin && npm run lint",
+    "lint:app": "cd order-up && npm run lint"
+  }
+}

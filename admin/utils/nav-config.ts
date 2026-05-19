@@ -11,7 +11,7 @@ export const navModules: NavModule[] = [
     icon: ClipboardDocumentListIcon,
     expanded: true,
     pages: [
-      { label: "Active Orders", href: "/orders", active: true },
+      { label: "All Orders", href: "/orders", active: true },
       { label: "Order History", href: "/orders/history" },
       { label: "New Order", href: "/orders/new" },
     ],

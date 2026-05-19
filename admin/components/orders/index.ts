@@ -4,3 +4,7 @@ export { OrderStatusBadge } from "./OrderStatusBadge";
 export { OrderChannelBadge } from "./OrderChannelBadge";
 export { OrdersToolbar } from "./OrdersToolbar";
 export { OrdersList } from "./OrdersList";
+export { OrdersTable } from "./OrdersTable";
+export { OrderStatusCell } from "./OrderStatusCell";
+export { OrderPriorityCell } from "./OrderPriorityCell";
+export { OrderChannelCell } from "./OrderChannelCell";

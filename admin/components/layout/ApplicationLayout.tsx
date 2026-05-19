@@ -15,7 +15,7 @@ export function ApplicationLayout({ children }: ApplicationLayoutProps) {
 
       <main className="flex-1 ml-[260px] flex flex-col">
         <TopHeader />
-        <TabNav />
+        {/* <TabNav /> */}
 
         <div className="flex-1 p-8 overflow-y-auto">
           {children}

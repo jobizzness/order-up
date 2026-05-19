@@ -7,12 +7,12 @@ export function TopHeader() {
   const { theme, toggleTheme, mounted } = useTheme();
 
   return (
-    <header className="flex items-center justify-between px-8 py-4 bg-card border-b border-border">
+    <header className="flex items-center justify-between px-8 py-4">
       <div className="flex items-center gap-2">
         <span className="text-xl font-semibold text-foreground">
-          Nice Cafe
+          Dashboard
         </span>
-        <span className="text-muted-foreground">▾</span>
+
       </div>
 
       <div className="flex items-center gap-3">

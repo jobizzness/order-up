@@ -8,13 +8,13 @@ const tabs = [
 
 export function TabNav() {
   return (
-    <nav className="flex items-center gap-8 px-8 bg-card border-b border-border">
+    <nav className="flex items-center gap-8 px-8">
       {tabs.map((tab) => (
         <button
           key={tab.label}
           className={`py-4 text-sm font-medium border-b-2 transition-colors ${tab.active
-              ? "text-foreground border-primary"
-              : "text-muted-foreground border-transparent hover:text-foreground"
+            ? "text-foreground border-primary"
+            : "text-muted-foreground border-transparent hover:text-foreground"
             }`}
         >
           {tab.label}

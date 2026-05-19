@@ -1,11 +1,20 @@
 import { NavModule } from "@/types";
 import {
+  HomeIcon,
   ClipboardDocumentListIcon,
   TruckIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
 
 export const navModules: NavModule[] = [
+  {
+    label: "Dashboard",
+    icon: HomeIcon,
+    expanded: false,
+    pages: [
+      { label: "Overview", href: "/dashboard" },
+    ],
+  },
   {
     label: "Orders",
     icon: ClipboardDocumentListIcon,

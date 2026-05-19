@@ -1,12 +1,5 @@
-import { ApplicationLayout } from "@/components/layout";
-import { OrdersToolbar, OrdersList } from "@/components/orders";
-import { mockOrders } from "@/utils/mock-orders";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <ApplicationLayout>
-      <OrdersToolbar />
-      <OrdersList orders={mockOrders} />
-    </ApplicationLayout>
-  );
+  redirect("/dashboard");
 }

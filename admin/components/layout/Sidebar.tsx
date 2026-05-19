@@ -5,7 +5,7 @@ import { SidebarProjects } from "./SidebarProjects";
 
 export function Sidebar() {
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col p-6 overflow-y-auto">
+    <aside className="fixed top-0 left-0 bottom-0 w-[260px] flex flex-col p-6 overflow-y-auto">
       <div className="flex items-center gap-2 text-lg font-semibold text-sidebar-foreground mb-8">
         <span className="text-xl">⊞</span>
         <span>Order Up</span>

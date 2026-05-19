@@ -6,12 +6,14 @@ type Theme = "light" | "dark";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
     const initial = stored || "light";
     setTheme(initial);
     document.documentElement.classList.toggle("dark", initial === "dark");
+    setMounted(true);
   }, []);
 
   const toggleTheme = () => {
@@ -21,5 +23,5 @@ export function useTheme() {
     document.documentElement.classList.toggle("dark", next === "dark");
   };
 
-  return { theme, toggleTheme };
+  return { theme, toggleTheme, mounted };
 }

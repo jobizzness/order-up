@@ -4,7 +4,7 @@ import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "@/hooks/useTheme";
 
 export function TopHeader() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
 
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-card border-b border-border">
@@ -21,11 +21,11 @@ export function TopHeader() {
           className="p-2 rounded-md border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           aria-label="Toggle dark mode"
         >
-          {theme === "light" ? (
+          {mounted && (theme === "light" ? (
             <MoonIcon className="w-5 h-5" />
           ) : (
             <SunIcon className="w-5 h-5" />
-          )}
+          ))}
         </button>
 
 

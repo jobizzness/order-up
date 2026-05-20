@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { verifyAuthRequest } from "@/app/auth/verifyAuthRequest";
 
-export async function loginAction(formData: FormData) {
+export async function loginAction(
+  _prev: { error: string | null },
+  formData: FormData
+): Promise<{ error: string | null }> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -12,17 +15,40 @@ export async function loginAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+    return { error: error.message };
   }
 
   // Confirm user exists in our DB with an allowed role before granting access
   const auth = await verifyAuthRequest();
 
   if (!auth.ok) {
-    redirect(`/auth/login?error=${encodeURIComponent(auth.error)}`);
+    return { error: auth.error };
+  }
+
+  const { user } = auth;
+
+  // Platform admins always have full access
+  if (user.role === "platform_admin") {
+    redirect("/dashboard");
+  }
+
+  // Restaurant owners — check tenant state
+  if (user.ownedTenants.length === 0) {
+    redirect("/auth/onboarding");
+  }
+
+  const tenant = user.ownedTenants[0];
+  if (!tenant.isApproved) {
+    redirect("/auth/onboarding/pending");
   }
 
   redirect("/dashboard");
+}
+
+export async function logoutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/auth/login");
 }
 
 export async function resetPasswordAction(formData: FormData) {

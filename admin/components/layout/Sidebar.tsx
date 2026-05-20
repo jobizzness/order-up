@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { logoutAction } from "@/app/auth/actions";
 import { SidebarNav } from "./SidebarNav";
 import { SidebarProjects } from "./SidebarProjects";
 
@@ -18,9 +20,19 @@ export function Sidebar() {
       <SidebarNav />
       <SidebarProjects />
 
-      <div className="mt-auto pt-4 border-t border-sidebar-border text-xs text-muted-foreground">
-        <p>Free Plan</p>
-        <p className="mt-1">Orders: Unlimited</p>
+      <div className="mt-auto pt-4 border-t border-sidebar-border">
+        <p className="text-xs text-muted-foreground">Free Plan</p>
+        <p className="mt-1 text-xs text-muted-foreground">Orders: Unlimited</p>
+
+        <form action={logoutAction} className="mt-4">
+          <button
+            type="submit"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+          >
+            <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0" />
+            Sign out
+          </button>
+        </form>
       </div>
     </aside>
   );

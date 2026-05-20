@@ -57,6 +57,8 @@ model Tenant {
   name              String
   description       String?
   address           String?
+  city              String?
+  country           String?
   phone             String?
   email             String?
   cuisine           String?
@@ -73,6 +75,10 @@ model Tenant {
   qrMenuEnabled     Boolean          @default(false)
   paymentsEnabled   Boolean          @default(false)
   analyticsEnabled  Boolean          @default(false)
+
+  // Approval (set by platform_admin after review)
+  isApproved        Boolean          @default(false)
+  approvedAt        DateTime?
 
   // Owner (links to platform User)
   ownerId           String

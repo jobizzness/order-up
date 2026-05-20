@@ -36,6 +36,8 @@ export async function seedUsers(prisma: PrismaClient) {
       name: 'Demo Restaurant',
       description: 'A demo restaurant for testing',
       ownerId: owner.id,
+      isApproved: true,
+      approvedAt: new Date(),
     },
   });
 

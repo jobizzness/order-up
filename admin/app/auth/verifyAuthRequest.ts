@@ -33,7 +33,7 @@ export async function verifyAuthRequest(): Promise<VerifyAuthResult> {
     where: { email: authUser.email! },
     include: {
       ownedTenants: {
-        select: { id: true, slug: true, name: true, tier: true, createdAt: true },
+        select: { id: true, slug: true, name: true, tier: true, isApproved: true, createdAt: true },
       },
     },
   });

@@ -51,6 +51,7 @@ export interface UserTenantDto {
   slug: string;
   name: string;
   tier: SubscriptionTier;
+  isApproved: boolean;
   createdAt: Date;
 }
 

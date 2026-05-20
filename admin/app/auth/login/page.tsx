@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { AuthDecorativePanel } from "@/components/auth/AuthDecorativePanel";
+import { DevCredentialsHint } from "@/components/auth/DevCredentialsHint";
 import { loginAction } from "../actions";
+
+const IS_DEV = process.env.NODE_ENV === "development";
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -36,6 +39,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {error}
             </div>
+          )}
+
+          {IS_DEV && (
+            <DevCredentialsHint
+              email="restaurant@matarrhq.com"
+              password="secret12restaurant"
+            />
           )}
 
           <form action={loginAction} className="flex flex-col gap-5">

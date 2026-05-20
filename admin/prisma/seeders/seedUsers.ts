@@ -1,16 +1,28 @@
 import { PrismaClient } from '@prisma/client';
 
-const DEMO_OWNER_ID = '00000000-0000-0000-0000-000000000001';
+const SUPER_ADMIN_ID = 'c22771ed-468a-4400-82c0-7e2bbd67543a';
+const DEMO_OWNER_ID = 'af4db38f-387d-4640-bdf7-0492bee5e5b9';
 const DEMO_TENANT_ID = '00000000-0000-0000-0000-000000000010';
 
 export async function seedUsers(prisma: PrismaClient) {
+  const admin = await prisma.user.upsert({
+    where: { id: SUPER_ADMIN_ID },
+    update: {},
+    create: {
+      id: SUPER_ADMIN_ID,
+      email: 'jobizzness@matarrhq.com',
+      name: 'Super Admin',
+      role: 'platform_admin',
+    },
+  });
+
   const owner = await prisma.user.upsert({
     where: { id: DEMO_OWNER_ID },
     update: {},
     create: {
       id: DEMO_OWNER_ID,
-      email: 'owner@demo.orderup.app',
-      name: 'Demo Owner',
+      email: 'restaurant@matarrhq.com',
+      name: 'Demo Restaurant Owner',
       role: 'restaurant_owner',
     },
   });
@@ -27,5 +39,5 @@ export async function seedUsers(prisma: PrismaClient) {
     },
   });
 
-  console.log(`✅ Users seeded — owner: ${owner.email}`);
+  console.log(`✅ Users seeded — admin: ${admin.email}, owner: ${owner.email}`);
 }

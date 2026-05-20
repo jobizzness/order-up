@@ -1,7 +1,13 @@
+import { loadEnvFile } from 'process';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { seedUsers } from './seedUsers';
 
-const prisma = new PrismaClient();
+try { loadEnvFile('.env.local'); } catch { /* optional */ }
+try { loadEnvFile('.env'); } catch { /* optional */ }
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   await seedUsers(prisma);

@@ -1,7 +1,11 @@
+"use client";
+
 import { AuthDecorativePanel } from "@/components/auth/AuthDecorativePanel";
 import { OnboardingWizard } from "@/components/auth/OnboardingWizard";
+import { useAuthVerify } from "@/hooks/useAuthVerify";
 
 export default function OnboardingPage() {
+  useAuthVerify("onboarding");
   return (
     <div className="w-full max-w-5xl min-h-[600px] bg-card rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
       {/* Left — wizard */}

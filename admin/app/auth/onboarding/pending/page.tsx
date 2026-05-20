@@ -1,6 +1,10 @@
+"use client";
+
 import { AuthDecorativePanel } from "@/components/auth/AuthDecorativePanel";
+import { useAuthVerify } from "@/hooks/useAuthVerify";
 
 export default function PendingApprovalPage() {
+  useAuthVerify("pending");
   return (
     <div className="w-full max-w-5xl min-h-[600px] bg-card rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
       {/* Left — status */}

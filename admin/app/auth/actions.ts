@@ -1,8 +1,22 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase";
 import { verifyAuthRequest } from "@/app/auth/verifyAuthRequest";
+
+type AccessLevel = 'admin' | 'approved' | 'pending' | 'onboarding';
+
+async function setAccessCookie(value: AccessLevel) {
+  const jar = await cookies();
+  jar.set('ou_access', value, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+}
 
 export async function loginAction(
   _prev: { error: string | null },
@@ -29,25 +43,31 @@ export async function loginAction(
 
   // Platform admins always have full access
   if (user.role === "platform_admin") {
+    await setAccessCookie("admin");
     redirect("/dashboard");
   }
 
   // Restaurant owners — check tenant state
   if (user.ownedTenants.length === 0) {
+    await setAccessCookie("onboarding");
     redirect("/auth/onboarding");
   }
 
   const tenant = user.ownedTenants[0];
   if (!tenant.isApproved) {
+    await setAccessCookie("pending");
     redirect("/auth/onboarding/pending");
   }
 
+  await setAccessCookie("approved");
   redirect("/dashboard");
 }
 
 export async function logoutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  const jar = await cookies();
+  jar.delete('ou_access');
   redirect("/auth/login");
 }
 

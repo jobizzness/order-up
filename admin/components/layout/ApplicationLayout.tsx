@@ -3,12 +3,15 @@
 import { Sidebar } from "./Sidebar";
 import { TopHeader } from "./TopHeader";
 import { TabNav } from "./TabNav";
+import { useAuthVerify } from "@/hooks/useAuthVerify";
 
 interface ApplicationLayoutProps {
   children: React.ReactNode;
 }
 
 export function ApplicationLayout({ children }: ApplicationLayoutProps) {
+  useAuthVerify("approved");
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />

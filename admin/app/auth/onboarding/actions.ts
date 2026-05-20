@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifyAuthRequest } from "@/app/auth/verifyAuthRequest";
 
@@ -49,6 +50,15 @@ export async function onboardingAction(
         },
       },
     },
+  });
+
+  const jar = await cookies();
+  jar.set('ou_access', 'pending', {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   redirect("/auth/onboarding/pending");

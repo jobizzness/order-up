@@ -19,6 +19,6 @@ export default {
 
   // Migration configuration
   migrations: {
-    path: path.join('..', 'prisma', 'migrations'),
+    path: path.join('prisma', 'migrations'),
   },
 } satisfies PrismaConfig;

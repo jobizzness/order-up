@@ -1,5 +1,12 @@
 # Agent Rules
 
+## Tech Stack
+
+- **Prisma 7** — Database ORM with multi-tenant schema
+- **Supabase** — PostgreSQL hosting, Auth, Realtime, Storage
+- **Next.js** — Admin dashboard (App Router)
+- **Expo** — Consumer mobile app
+
 ## Code Style (mandatory)
 
 - **Simple, readable code** — clarity over cleverness. No fancy one-liners when a clear multi-line version is easier to understand.

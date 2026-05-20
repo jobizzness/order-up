@@ -1,112 +1,342 @@
+// Multi-Tenant Restaurant Table Booking Schema
+// Prisma 7 - Multi-tenant SaaS architecture
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
-enum OrderStatus {
-  pending
-  preparing
-  ready
-  served
-  cancelled
+// ============================================
+// PLATFORM LEVEL (SaaS Admin)
+// ============================================
+
+enum UserRole {
+  platform_admin    // SaaS staff - manage all tenants
+  restaurant_owner  // Owns one or more restaurants
 }
 
-enum OrderPriority {
-  low
-  medium
-  high
+/**
+ * Platform users - SaaS admins and restaurant owners
+ * These are the people who sign up for and manage the platform
+ */
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  role          UserRole  @default(restaurant_owner)
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Restaurant owners can have multiple tenants
+  ownedTenants  Tenant[]  // Tenants this user owns
 }
 
-enum OrderChannel {
-  dine_in
-  takeout
-  delivery
+// ============================================
+// TENANT LEVEL (Restaurant Account)
+// ============================================
+
+enum SubscriptionTier {
+  free
+  starter
+  growth
+  pro
 }
+
+/**
+ * Tenant = Restaurant account
+ * Each restaurant is a separate tenant with isolated data
+ */
+model Tenant {
+  id                String           @id @default(uuid())
+  slug              String           @unique // Subdomain identifier
+  name              String
+  description       String?
+  address           String?
+  phone             String?
+  email             String?
+  cuisine           String?
+  timezone          String           @default("UTC")
+
+  // Billing / Subscription
+  tier              SubscriptionTier @default(free)
+  tierExpiresAt     DateTime?
+  maxTables         Int              @default(10)
+  maxStaff          Int              @default(3)
+  commissionPercent Decimal          @default(0.00)
+
+  // Feature flags
+  qrMenuEnabled     Boolean          @default(false)
+  paymentsEnabled   Boolean          @default(false)
+  analyticsEnabled  Boolean          @default(false)
+
+  // Owner (links to platform User)
+  ownerId           String
+  owner             User             @relation(fields: [ownerId], references: [id])
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relations
+  settings          TenantSettings?
+  tables            Table[]
+  staff             Staff[]        // Restaurant employees
+  customers         Customer[]     // Dining guests
+  reservations      Reservation[]
+  waitlist          WaitlistEntry[]
+  menuCategories    MenuCategory[]
+  menuItems         MenuItem[]
+  reviews           Review[]
+}
+
+model TenantSettings {
+  id                   String   @id @default(uuid())
+  tenantId             String   @unique
+  tenant               Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  bookingWindowDays    Int      @default(30)
+  defaultSlotMinutes   Int      @default(60)
+  minPartySize         Int      @default(1)
+  maxPartySize         Int      @default(12)
+  operatingHours       Json     // { monday: { open: "09:00", close: "22:00" }, ... }
+
+  confirmationTemplate String?
+  reminderHours        Int[]    @default([24, 2])
+
+  primaryColor         String   @default("#3B82F6")
+  logoUrl              String?
+}
+
+// ============================================
+// STAFF (Restaurant Employees)
+// ============================================
 
 enum StaffRole {
-  owner
-  manager
-  kitchen
+  owner      // Can manage everything including billing
+  manager    // Can manage staff, menu, reservations
+  host       // Can manage reservations, seating
+  server     // Can view orders, update status
 }
 
-model Settings {
-  id                String   @id @default(uuid())
-  restaurantName    String
-  businessHours     Json?
-  notificationPrefs Json?
-  updatedAt         DateTime @updatedAt
-}
-
+/**
+ * Staff - Employees of a specific restaurant
+ * Separate from platform Users - these are workers, not account owners
+ */
 model Staff {
-  id         String          @id @default(uuid())
-  authId     String          @unique
-  role       StaffRole
+  id         String    @id @default(uuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  authId     String    // Supabase auth.users.id
+  email      String
   name       String
-  createdAt  DateTime        @default(now())
-  activities OrderActivity[]
+  role       StaffRole
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  reservations Reservation[]
+  reviews      Review[]
+
+  @@unique([tenantId, authId])
+  @@unique([tenantId, email])
 }
 
-model Category {
-  id        String     @id @default(uuid())
-  name      String
-  sortOrder Int        @default(0)
-  createdAt DateTime   @default(now())
-  menuItems MenuItem[]
+// ============================================
+// CUSTOMERS (Dining Guests)
+// ============================================
+
+/**
+ * Customer - Dining guests who make reservations
+ * Separate auth (often just phone-based for loyalty)
+ */
+model Customer {
+  id          String    @id @default(uuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Can be linked to auth or just phone-based
+  authId      String?   @unique
+  email       String?
+  phone       String?   // Primary identifier for loyalty
+  name        String?
+
+  // Loyalty
+  points      Int       @default(0)
+  visits      Int       @default(0)
+  lastVisit   DateTime?
+  preferences Json?     // { seating: "booth", dietary: ["vegetarian"] }
+
+  reservations Reservation[]
+  waitlist       WaitlistEntry[]
+  reviews        Review[]
+
+  @@unique([tenantId, phone])
+  @@unique([tenantId, email])
+}
+
+// ============================================
+// RESERVATIONS
+// ============================================
+
+enum ReservationStatus {
+  pending
+  confirmed
+  seated
+  completed
+  cancelled
+  no_show
+}
+
+enum TableStatus {
+  available
+  occupied
+  reserved
+  cleaning
+}
+
+model Table {
+  id            String      @id @default(uuid())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number        String      // Display: "A1", "Patio-3", etc.
+  capacity      Int
+  section       String?     // "Main", "Patio", "Bar"
+  positionX     Int?        // Floor plan coordinates
+  positionY     Int?
+  status        TableStatus @default(available)
+
+  reservations  Reservation[]
+}
+
+model Reservation {
+  id                String            @id @default(uuid())
+  tenantId          String
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Guest info
+  customerId        String?
+  customer          Customer?         @relation(fields: [customerId], references: [id])
+  guestName         String
+  guestEmail        String?
+  guestPhone        String?
+  partySize         Int
+
+  // Staff who created/confirmed the reservation
+  staffId           String?
+  staff             Staff?            @relation(fields: [staffId], references: [id])
+
+  // Booking details
+  tableId           String?
+  table             Table?            @relation(fields: [tableId], references: [id])
+  date              DateTime          @db.Date
+  time              String            // "18:30"
+  durationMinutes   Int               @default(120)
+
+  // Status
+  status            ReservationStatus @default(pending)
+  source            String            @default("web") // web, app, phone, walkin
+
+  // Special requests
+  occasion          String?
+  seatingPref       String?
+  dietaryNotes      String?
+  specialRequests   String?
+
+  // Payment
+  depositAmount     Decimal?          @db.Decimal(10, 2)
+  depositPaid       Boolean           @default(false)
+
+  // Notifications
+  confirmationSent  DateTime?
+  reminderSent      DateTime?
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([tenantId, date])
+  @@index([tenantId, status])
+}
+
+// ============================================
+// WAITLIST
+// ============================================
+
+model WaitlistEntry {
+  id            String    @id @default(uuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  guestName     String
+  guestPhone    String
+  partySize     Int
+  preferredDate DateTime  @db.Date
+  preferredTime String?
+
+  status        String    @default("waiting")
+  notifiedAt    DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+// ============================================
+// MENU (QR Menu)
+// ============================================
+
+model MenuCategory {
+  id          String     @id @default(uuid())
+  tenantId    String
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+
+  items       MenuItem[]
 }
 
 model MenuItem {
-  id          String      @id @default(uuid())
-  categoryId  String?
-  category    Category?   @relation(fields: [categoryId], references: [id])
-  name        String
-  description String?
-  price       Decimal     @db.Decimal(10, 2)
-  imageUrl    String?
-  isAvailable Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  orderItems  OrderItem[]
+  id            String       @id @default(uuid())
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  categoryId    String?
+  category      MenuCategory? @relation(fields: [categoryId], references: [id])
+
+  name          String
+  description   String?
+  price         Decimal       @db.Decimal(10, 2)
+  imageUrl      String?
+  isAvailable   Boolean       @default(true)
+  isPopular     Boolean       @default(false)
+  allergens     String[]      @default([])
+
+  createdAt     DateTime      @default(now())
 }
 
-model Order {
-  id               String          @id @default(uuid())
-  tableNumber      Int?
-  customerName     String?
-  channel          OrderChannel
-  status           OrderStatus     @default(pending)
-  priority         OrderPriority   @default(medium)
-  estimatedReadyAt DateTime?
-  notes            String?
-  totalAmount      Decimal         @db.Decimal(10, 2)
-  deviceId         String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  items            OrderItem[]
-  activities       OrderActivity[]
-}
+// ============================================
+// REVIEWS
+// ============================================
 
-model OrderItem {
-  id         String   @id @default(uuid())
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItemId String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-  name       String
-  price      Decimal  @db.Decimal(10, 2)
-  quantity   Int
-  notes      String?
-}
+model Review {
+  id          String    @id @default(uuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-model OrderActivity {
-  id        String      @id @default(uuid())
-  orderId   String
-  order     Order       @relation(fields: [orderId], references: [id])
-  status    OrderStatus
-  actorId   String?
-  actor     Staff?      @relation(fields: [actorId], references: [id])
-  createdAt DateTime    @default(now())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+
+  staffId     String?   // Staff who verified/sent review request
+  staff       Staff?    @relation(fields: [staffId], references: [id])
+
+  rating      Int       // 1-5
+  comment     String?
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
 }

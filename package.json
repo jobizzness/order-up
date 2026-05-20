@@ -11,6 +11,19 @@
     "install:app": "cd order-up && npm install",
     "install:all": "npm run install:admin && npm run install:app",
     "lint:admin": "cd admin && npm run lint",
-    "lint:app": "cd order-up && npm run lint"
+    "lint:app": "cd order-up && npm run lint",
+    "db:seed": "npx tsx shared/prisma/seed.ts",
+    "db:seed:tenants": "npx tsx shared/prisma/seed.ts --tenant",
+    "db:seed:with-data": "npx tsx shared/prisma/seed.ts --with-data",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status",
+    "supabase:login": "npx supabase login",
+    "supabase:link": "npx supabase link",
+    "supabase:db:push": "npx supabase db push",
+    "supabase:db:reset": "npx supabase db reset"
+  },
+  "devDependencies": {
+    "supabase": "^2.100.1"
   }
 }

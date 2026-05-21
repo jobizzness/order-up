@@ -39,6 +39,7 @@ export async function POST(request: Request) {
 
     const menuItem = await prisma.menuItem.create({
       data: {
+        tenantId: body.tenantId,
         categoryId: body.categoryId,
         name: body.name,
         description: body.description,

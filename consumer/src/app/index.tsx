@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { SymbolView } from 'expo-symbols';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -25,7 +24,7 @@ export default function WelcomeScreen() {
           <ThemedText type="default" style={styles.brandName}>
             Order Up{' '}
             <SymbolView
-              name={{ ios: 'info.circle', android: 'info', web: 'info' }}
+              name="info.circle"
               size={16}
               tintColor={theme.text}
             />
@@ -37,11 +36,11 @@ export default function WelcomeScreen() {
             Shaping Dining{'\n'}Traditions
           </ThemedText>
 
-          <View style={styles.mascotContainer}>
-            <Image
-              source={require('@/assets/images/mascot.png')}
-              style={styles.mascot}
-              contentFit="contain"
+          <View style={[styles.mascotContainer, { backgroundColor: theme.surface }]}>
+            <SymbolView
+              name="fork.knife.circle.fill"
+              size={120}
+              tintColor={theme.primary}
             />
           </View>
         </View>
@@ -52,7 +51,7 @@ export default function WelcomeScreen() {
             { backgroundColor: theme.primary },
           ]}>
           <SymbolView
-            name={{ ios: 'chevron.left', android: 'arrow_back', web: 'arrow_back' }}
+            name="chevron.left"
             size={20}
             tintColor="#FFFFFF"
           />
@@ -60,7 +59,7 @@ export default function WelcomeScreen() {
             Get Started
           </ThemedText>
           <SymbolView
-            name={{ ios: 'chevron.right', android: 'arrow_forward', web: 'arrow_forward' }}
+            name="chevron.right"
             size={20}
             tintColor="#FFFFFF"
           />

@@ -4,9 +4,9 @@ import { createClient } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.menuCategory.findMany({
       include: {
-        menuItems: {
+        items: {
           where: {
             isAvailable: true,
           },
@@ -38,8 +38,9 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const category = await prisma.category.create({
+    const category = await prisma.menuCategory.create({
       data: {
+        tenantId: body.tenantId,
         name: body.name,
         sortOrder: body.sortOrder || 0,
       },

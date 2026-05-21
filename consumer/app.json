@@ -20,8 +20,29 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "single",
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro",
+      "manifest": {
+        "short_name": "Order Up",
+        "name": "Order Up - Restaurant Booking",
+        "start_url": "/",
+        "display": "standalone",
+        "orientation": "portrait",
+        "background_color": "#0D1F1A",
+        "theme_color": "#1B4D3E",
+        "description": "Book tables, order food, and explore restaurants",
+        "icons": [
+          {
+            "src": "./assets/images/icon.png",
+            "sizes": "192x192"
+          },
+          {
+            "src": "./assets/images/icon.png",
+            "sizes": "512x512"
+          }
+        ]
+      }
     },
     "plugins": [
       "expo-router",

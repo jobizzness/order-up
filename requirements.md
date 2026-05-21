@@ -99,3 +99,21 @@ Online Restaurant Reservation System with three panels:
 - Event booking (private dining, parties)
 - Gift cards and vouchers
 - Referral program
+
+
+A complete digital dining experience for your customers whether they want delivery, takeaway, or dine-in service. Customers can browse your menu, place orders in seconds, reserve tables, track deliveries, and enjoy a seamless mobile-first experience that keeps them coming back.
+
+⭐ Key Features
+
+🍽️ Digital Restaurant Menu
+🛵 Delivery Ordering
+🥡 Takeout & Pickup
+🍷 Dine-In Experience
+🛒 Fast Checkout Experience
+🔔 Real-Time Notifications
+❤️ Favorites & Quick Reorders
+⭐ Reviews & Ratings
+🎟️ Promotions & Discount Campaigns
+📱 iOS & Android Mobile Apps
+💳 Payment Integration
+📊 Restaurant Management Dashboard (Free)

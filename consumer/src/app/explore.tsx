@@ -1,31 +1,77 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
 import React from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ExternalLink } from '@/components/external-link';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export default function TabTwoScreen() {
+type FeatureItem = { label: string; done?: boolean };
+
+const CUSTOMER_FEATURES: FeatureItem[] = [
+  { label: 'User Registration / Login — email, phone, social auth' },
+  { label: 'Location-Based Search — find nearby restaurants' },
+  { label: 'Restaurant Discovery — browse by cuisine, rating, price, availability' },
+  { label: 'Real-Time Table Availability — view available slots' },
+  { label: 'Online Table Booking — select date, time, party size' },
+  { label: 'Waitlist Management — join waitlist when fully booked' },
+  { label: 'Special Requests — dietary restrictions, seating preferences' },
+  { label: 'QR Menu — contactless digital menu scanning' },
+  { label: 'In-App Payments — pay for reservations, pre-orders, deposits' },
+  { label: 'Booking History — past and upcoming reservations' },
+  { label: 'Push Notifications — booking confirmations, reminders, offers' },
+  { label: 'Loyalty & Rewards — points, cashback, exclusive offers' },
+  { label: 'Ratings & Reviews — rate dining experience' },
+];
+
+const MANAGER_FEATURES: FeatureItem[] = [
+  { label: 'Dashboard — overview of today\'s bookings, occupancy, revenue' },
+  { label: 'Reservation Management — view, confirm, modify, cancel bookings' },
+  { label: 'Table Management — configure table layout, capacity, sections' },
+  { label: 'Waitlist Management — manage waitlisted guests' },
+  { label: 'QR Menu Builder — create and update digital menus' },
+  { label: 'Booking Rules — set hours, availability, blackout dates' },
+  { label: 'Staff Management — add staff, assign roles' },
+  { label: 'Offers & Promotions — create discounts, special events' },
+  { label: 'Customer Insights — guest profiles, preferences, visit history' },
+  { label: 'Notifications — SMS/email to guests' },
+];
+
+const FUTURE_FEATURES: FeatureItem[] = [
+  { label: 'AI-powered table optimization' },
+  { label: 'Integration with POS systems' },
+  { label: 'Delivery / takeout ordering' },
+  { label: 'Event booking (private dining, parties)' },
+  { label: 'Gift cards and vouchers' },
+  { label: 'Referral program' },
+];
+
+function FeatureList({ items }: { items: FeatureItem[] }) {
+  return (
+    <View style={styles.featureList}>
+      {items.map((item) => (
+        <View key={item.label} style={styles.featureItem}>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.bullet}>•</ThemedText>
+          <ThemedText type="small" style={styles.featureItemText}>{item.label}</ThemedText>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export default function FeaturesScreen() {
   const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
   const theme = useTheme();
 
   const contentPlatformStyle = Platform.select({
     android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
+      paddingTop: safeAreaInsets.top + Spacing.four,
+      paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.four,
+    },
+    ios: {
+      paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.four,
     },
     web: {
       paddingTop: Spacing.six,
@@ -36,91 +82,32 @@ export default function TabTwoScreen() {
   return (
     <ScrollView
       style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
+      contentInset={{
+        top: safeAreaInsets.top,
+        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+      }}
       contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
+          <ThemedText type="subtitle">App Features</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
+            Everything built into Order Up
           </ThemedText>
-
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
         </ThemedView>
 
         <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
+          <Collapsible title="📱 Customer App">
+            <FeatureList items={CUSTOMER_FEATURES} />
           </Collapsible>
 
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
-              </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
+          <Collapsible title="🍽️ Restaurant Manager">
+            <FeatureList items={MANAGER_FEATURES} />
           </Collapsible>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
+          <Collapsible title="🔮 Coming Soon">
+            <FeatureList items={FUTURE_FEATURES} />
           </Collapsible>
         </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
       </ThemedView>
     </ScrollView>
   );
@@ -142,40 +129,28 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     alignItems: 'center',
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
+    paddingVertical: Spacing.four,
   },
   centerText: {
     textAlign: 'center',
   },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
   sectionsWrapper: {
-    gap: Spacing.five,
+    gap: Spacing.three,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
+    paddingBottom: Spacing.four,
   },
-  collapsibleContent: {
-    alignItems: 'center',
+  featureList: {
+    gap: Spacing.two,
   },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+  featureItem: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    alignItems: 'flex-start',
   },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
+  bullet: {
+    lineHeight: 22,
+  },
+  featureItemText: {
+    flex: 1,
   },
 });

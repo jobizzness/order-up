@@ -2,6 +2,7 @@
 // Platform-level users who manage the SaaS or own restaurants
 
 import type { UserRole, SubscriptionTier } from '@prisma/client';
+export type { UserRole, SubscriptionTier };
 
 // ============================================
 // PLATFORM USER DTOs

@@ -12,9 +12,9 @@ try { loadEnvFile('.env'); } catch { /* file may not exist */ }
 export default {
   schema: path.join('prisma', 'schema.prisma'),
 
-  // Datasource configuration for migrations
+  // Datasource configuration for migrations (not required for prisma generate)
   datasource: {
-    url: process.env.DIRECT_URL || process.env.DATABASE_URL,
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL || 'postgresql://localhost:5432/placeholder',
   },
 
   // Migration configuration

@@ -2,8 +2,7 @@
 
 import { createClient } from "@/lib/supabase";
 import { prisma } from "@/lib/prisma";
-import type { UserRole } from "@prisma/client";
-import type { UserWithTenantsDto } from "@/prisma/dto/user.dto";
+import type { UserRole, UserWithTenantsDto } from "@/prisma/dto/user.dto";
 
 const ALLOWED_ROLES: UserRole[] = ["platform_admin", "restaurant_owner"];
 

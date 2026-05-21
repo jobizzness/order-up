@@ -29,6 +29,9 @@ importers:
       expo-font:
         specifier: ~13.3.0
         version: 13.3.2(expo@54.0.34)(react@19.0.0)
+      expo-image:
+        specifier: ~3.0.11
+        version: 3.0.11(expo@54.0.34)(react-native-web@0.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-native@0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       expo-linking:
         specifier: ~7.1.0
         version: 7.1.7(expo@54.0.34)(react-native@0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -1604,6 +1607,17 @@ packages:
       expo: '*'
       react: '*'
       react-native: '*'
+
+  expo-image@3.0.11:
+    resolution: {integrity: sha512-4TudfUCLgYgENv+f48omnU8tjS2S0Pd9EaON5/s1ZUBRwZ7K8acEr4NfvLPSaeXvxW24iLAiyQ7sV7BXQH3RoA==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+      react-native-web: '*'
+    peerDependenciesMeta:
+      react-native-web:
+        optional: true
 
   expo-keep-awake@15.0.8:
     resolution: {integrity: sha512-YK9M1VrnoH1vLJiQzChZgzDvVimVoriibiDIFLbQMpjYBnvyfUeHJcin/Gx1a+XgupNXy92EQJLgI/9ZuXajYQ==}
@@ -5246,6 +5260,14 @@ snapshots:
       fontfaceobserver: 2.3.0
       react: 19.0.0
       react-native: 0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0)
+
+  expo-image@3.0.11(expo@54.0.34)(react-native-web@0.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-native@0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0):
+    dependencies:
+      expo: 54.0.34(@babel/core@7.29.0)(@expo/metro-runtime@5.0.4(react-native@0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0)))(expo-router@5.0.7)(react-native@0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)(typescript@5.9.3)
+      react: 19.0.0
+      react-native: 0.79.0(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0)
+    optionalDependencies:
+      react-native-web: 0.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   expo-keep-awake@15.0.8(expo@54.0.34)(react@19.0.0):
     dependencies:

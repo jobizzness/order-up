@@ -1,12 +1,37 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase';
+import { verifyAuthRequest } from '@/app/auth/verifyAuthRequest';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get('all') === 'true';
+
+    const auth = await verifyAuthRequest();
+    if (!auth.ok) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = auth.user;
+    let tenantId: string;
+
+    if (user.role === 'platform_admin') {
+      const tenant = await prisma.tenant.findFirst();
+      if (!tenant) {
+        return NextResponse.json({ error: 'No tenants found' }, { status: 404 });
+      }
+      tenantId = tenant.id;
+    } else {
+      if (user.ownedTenants.length === 0) {
+        return NextResponse.json({ error: 'No tenant associated with this account' }, { status: 403 });
+      }
+      tenantId = user.ownedTenants[0].id;
+    }
+
     const menuItems = await prisma.menuItem.findMany({
       where: {
-        isAvailable: true,
+        tenantId,
+        isAvailable: showAll ? undefined : true,
       },
       include: {
         category: true,
@@ -28,24 +53,47 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const auth = await verifyAuthRequest();
+    if (!auth.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = auth.user;
+    let tenantId: string;
+
+    if (user.role === 'platform_admin') {
+      const tenant = await prisma.tenant.findFirst();
+      if (!tenant) {
+        return NextResponse.json({ error: 'No tenants found' }, { status: 404 });
+      }
+      tenantId = tenant.id;
+    } else {
+      if (user.ownedTenants.length === 0) {
+        return NextResponse.json({ error: 'No tenant associated with this account' }, { status: 403 });
+      }
+      tenantId = user.ownedTenants[0].id;
     }
 
     const body = await request.json();
 
+    if (!body.name) {
+      return NextResponse.json({ error: 'Menu item name is required' }, { status: 400 });
+    }
+    if (body.price === undefined || body.price === null) {
+      return NextResponse.json({ error: 'Menu item price is required' }, { status: 400 });
+    }
+
     const menuItem = await prisma.menuItem.create({
       data: {
-        tenantId: body.tenantId,
-        categoryId: body.categoryId,
+        tenantId,
+        categoryId: body.categoryId || null,
         name: body.name,
-        description: body.description,
+        description: body.description || null,
         price: body.price,
-        imageUrl: body.imageUrl,
+        imageUrl: body.imageUrl || null,
         isAvailable: body.isAvailable ?? true,
+        isPopular: body.isPopular ?? false,
+        allergens: body.allergens || [],
       },
       include: {
         category: true,
@@ -61,3 +109,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

@@ -33,39 +33,31 @@ export async function PATCH(
       tenantId = user.ownedTenants[0].id;
     }
 
-    // Verify menuItem belongs to this tenant
-    const existingItem = await prisma.menuItem.findUnique({
+    // Verify category belongs to this tenant
+    const existingCategory = await prisma.menuCategory.findUnique({
       where: { id },
     });
 
-    if (!existingItem || existingItem.tenantId !== tenantId) {
-      return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
+    if (!existingCategory || existingCategory.tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
 
     const body = await request.json();
 
-    const menuItem = await prisma.menuItem.update({
+    const category = await prisma.menuCategory.update({
       where: { id },
       data: {
-        categoryId: body.categoryId !== undefined ? body.categoryId : undefined,
         name: body.name !== undefined ? body.name : undefined,
-        description: body.description !== undefined ? body.description : undefined,
-        price: body.price !== undefined ? body.price : undefined,
-        imageUrl: body.imageUrl !== undefined ? body.imageUrl : undefined,
-        isAvailable: body.isAvailable !== undefined ? body.isAvailable : undefined,
-        isPopular: body.isPopular !== undefined ? body.isPopular : undefined,
-        allergens: body.allergens !== undefined ? body.allergens : undefined,
-      },
-      include: {
-        category: true,
+        sortOrder: body.sortOrder !== undefined ? body.sortOrder : undefined,
+        isActive: body.isActive !== undefined ? body.isActive : undefined,
       },
     });
 
-    return NextResponse.json(menuItem);
+    return NextResponse.json(category);
   } catch (error) {
-    console.error('Failed to update menu item:', error);
+    console.error('Failed to update category:', error);
     return NextResponse.json(
-      { error: 'Failed to update menu item' },
+      { error: 'Failed to update category' },
       { status: 500 }
     );
   }
@@ -98,26 +90,32 @@ export async function DELETE(
       tenantId = user.ownedTenants[0].id;
     }
 
-    // Verify menuItem belongs to this tenant
-    const existingItem = await prisma.menuItem.findUnique({
+    // Verify category belongs to this tenant
+    const existingCategory = await prisma.menuCategory.findUnique({
       where: { id },
     });
 
-    if (!existingItem || existingItem.tenantId !== tenantId) {
-      return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
+    if (!existingCategory || existingCategory.tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
 
-    await prisma.menuItem.delete({
+    // Delete category - Note: prisma.menuCategory.delete will delete the category.
+    // If there are menu items in this category, we will set categoryId to null for them first.
+    await prisma.menuItem.updateMany({
+      where: { categoryId: id },
+      data: { categoryId: null },
+    });
+
+    await prisma.menuCategory.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Failed to delete menu item:', error);
+    console.error('Failed to delete category:', error);
     return NextResponse.json(
-      { error: 'Failed to delete menu item' },
+      { error: 'Failed to delete category' },
       { status: 500 }
     );
   }
 }
-

@@ -4,6 +4,7 @@ import {
   ClipboardDocumentListIcon,
   TruckIcon,
   LockClosedIcon,
+  BookOpenIcon,
 } from "@heroicons/react/24/outline";
 
 export const navModules: NavModule[] = [
@@ -13,6 +14,16 @@ export const navModules: NavModule[] = [
     expanded: false,
     pages: [
       { label: "Overview", href: "/dashboard" },
+      { label: "POS", href: "/pos" },
+    ],
+  },
+  {
+    label: "Menu",
+    icon: BookOpenIcon,
+    expanded: true,
+    pages: [
+      { label: "Menu Items", href: "/menu" },
+      { label: "Categories", href: "/categories" },
     ],
   },
   {
@@ -20,7 +31,7 @@ export const navModules: NavModule[] = [
     icon: ClipboardDocumentListIcon,
     expanded: true,
     pages: [
-      { label: "All Orders", href: "/orders", active: true },
+      { label: "All Orders", href: "/orders" },
       { label: "Order History", href: "/orders/history" },
       { label: "New Order", href: "/orders/new" },
     ],

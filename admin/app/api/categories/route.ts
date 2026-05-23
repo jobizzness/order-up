@@ -1,14 +1,42 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase';
+import { verifyAuthRequest } from '@/app/auth/verifyAuthRequest';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get('all') === 'true';
+
+    const auth = await verifyAuthRequest();
+    if (!auth.ok) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = auth.user;
+    let tenantId: string;
+
+    if (user.role === 'platform_admin') {
+      const tenant = await prisma.tenant.findFirst();
+      if (!tenant) {
+        return NextResponse.json({ error: 'No tenants found' }, { status: 404 });
+      }
+      tenantId = tenant.id;
+    } else {
+      if (user.ownedTenants.length === 0) {
+        return NextResponse.json({ error: 'No tenant associated with this account' }, { status: 403 });
+      }
+      tenantId = user.ownedTenants[0].id;
+    }
+
     const categories = await prisma.menuCategory.findMany({
+      where: {
+        tenantId,
+      },
       include: {
         items: {
-          where: {
-            isAvailable: true,
+          where: showAll ? undefined : { isAvailable: true },
+          orderBy: {
+            createdAt: 'desc',
           },
         },
       },
@@ -29,18 +57,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const auth = await verifyAuthRequest();
+    if (!auth.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const user = auth.user;
+    let tenantId: string;
+
+    if (user.role === 'platform_admin') {
+      const tenant = await prisma.tenant.findFirst();
+      if (!tenant) {
+        return NextResponse.json({ error: 'No tenants found' }, { status: 404 });
+      }
+      tenantId = tenant.id;
+    } else {
+      if (user.ownedTenants.length === 0) {
+        return NextResponse.json({ error: 'No tenant associated with this account' }, { status: 403 });
+      }
+      tenantId = user.ownedTenants[0].id;
+    }
+
     const body = await request.json();
+    if (!body.name) {
+      return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
+    }
 
     const category = await prisma.menuCategory.create({
       data: {
-        tenantId: body.tenantId,
+        tenantId,
         name: body.name,
         sortOrder: body.sortOrder || 0,
       },
@@ -55,3 +100,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
